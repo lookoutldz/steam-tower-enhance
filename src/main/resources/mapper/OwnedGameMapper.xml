@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.steamtowerenhance.mapper.OwnedGameMapper">
+
+    <resultMap id="BaseResultMap" type="org.demo.steamtowerenhance.domain.OwnedGame">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="steamid" column="steamid" jdbcType="VARCHAR"/>
+            <result property="appid" column="appid" jdbcType="INTEGER"/>
+            <result property="appname" column="appname" jdbcType="VARCHAR"/>
+            <result property="playtime2week" column="playtime_2week" jdbcType="INTEGER"/>
+            <result property="playtimeForever" column="playtime_forever" jdbcType="INTEGER"/>
+            <result property="imgIconUrl" column="img_icon_url" jdbcType="VARCHAR"/>
+            <result property="imgLogoUrl" column="img_logo_url" jdbcType="VARCHAR"/>
+            <result property="hasCommunityVisibleState" column="has_community_visible_state" jdbcType="TINYINT"/>
+            <result property="hasLeaderboards" column="has_leaderboards" jdbcType="TINYINT"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="deleteTime" column="delete_time" jdbcType="TIMESTAMP"/>
+            <result property="deleted" column="deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,steamid,appid,
+        appname,playtime_2week,playtime_forever,
+        img_icon_url,img_logo_url,has_community_visible_state, has_leaderboards,
+        update_time,create_time,delete_time,
+        deleted
+    </sql>
+
+    <insert id="insertBatch">
+        insert ignore into owned_game(
+            steamid,appid,appname,playtime_2week,playtime_forever,
+            img_icon_url,img_logo_url,has_community_visible_state,has_leaderboards)
+        values
+        <foreach collection="list" separator="," item="item">
+            (#{steamid}, #{item.appid}, #{item.appname}, #{item.playtime2week}, #{item.playtimeForever},
+            #{item.imgIconUrl}, #{item.imgLogoUrl}, #{item.hasCommunityVisibleState}, #{item.hasLeaderboards})
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.steamtowerenhance.mapper.PlayerMapper">
+
+    <resultMap id="BaseResultMap" type="org.demo.steamtowerenhance.domain.Player">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="steamid" column="steamid" jdbcType="VARCHAR"/>
+            <result property="communityvisibilitystate" column="communityvisibilitystate" jdbcType="INTEGER"/>
+            <result property="profilestate" column="profilestate" jdbcType="INTEGER"/>
+            <result property="personaname" column="personaname" jdbcType="VARCHAR"/>
+            <result property="lastlogoff" column="lastlogoff" jdbcType="INTEGER"/>
+            <result property="commentpermission" column="commentpermission" jdbcType="INTEGER"/>
+            <result property="profileurl" column="profileurl" jdbcType="VARCHAR"/>
+            <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+            <result property="avatarmedium" column="avatarmedium" jdbcType="VARCHAR"/>
+            <result property="avatarfull" column="avatarfull" jdbcType="VARCHAR"/>
+            <result property="avatarhash" column="avatarhash" jdbcType="VARCHAR"/>
+            <result property="personastate" column="personastate" jdbcType="INTEGER"/>
+            <result property="realname" column="realname" jdbcType="VARCHAR"/>
+            <result property="primaryclanid" column="primaryclanid" jdbcType="VARCHAR"/>
+            <result property="timecreated" column="timecreated" jdbcType="INTEGER"/>
+            <result property="personastateflags" column="personastateflags" jdbcType="INTEGER"/>
+            <result property="gameextrainfo" column="gameextrainfo" jdbcType="VARCHAR"/>
+            <result property="gameserverip" column="gameserverip" jdbcType="VARCHAR"/>
+            <result property="gameid" column="gameid" jdbcType="INTEGER"/>
+            <result property="loccountrycode" column="loccountrycode" jdbcType="VARCHAR"/>
+            <result property="locstatecode" column="locstatecode" jdbcType="VARCHAR"/>
+            <result property="loccityid" column="loccityid" jdbcType="VARCHAR"/>
+            <result property="steamlevel" column="steamlevel" jdbcType="INTEGER"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="deleteTime" column="delete_time" jdbcType="TIMESTAMP"/>
+            <result property="deleted" column="deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,steamid,communityvisibilitystate,
+        profilestate,personaname,lastlogoff,
+        commentpermission,profileurl,avatar,
+        avatarmedium,avatarfull,avatarhash,
+        personastate,realname,primaryclanid,
+        timecreated,personastateflags,gameextrainfo,
+        gameserverip,gameid,loccountrycode,
+        locstatecode,loccityid,steamlevel,
+        update_time,create_time,delete_time,
+        deleted
+    </sql>
+
+    <insert id="insertBatch">
+        insert ignore into player(
+            steamid, communityvisibilitystate, profilestate, personaname,
+            lastlogoff, commentpermission, profileurl, avatar, avatarmedium, avatarfull, avatarhash,
+            personastate, realname, primaryclanid, timecreated, personastateflags, gameextrainfo,
+            gameserverip, gameid, loccountrycode, locstatecode, loccityid, steamlevel)
+        values
+        <foreach collection="list" separator="," item="item">
+            (#{item.steamid}, #{item.communityvisibilitystate}, #{item.profilestate}, #{item.personaname},
+            #{item.lastlogoff}, #{item.commentpermission}, #{item.profileurl}, #{item.avatar}, #{item.avatarmedium}, #{item.avatarfull}, #{item.avatarhash},
+            #{item.personastate}, #{item.realname}, #{item.primaryclanid}, #{item.timecreated}, #{item.personastateflags}, #{item.gameextrainfo},
+            #{item.gameserverip}, #{item.gameid}, #{item.loccountrycode}, #{item.locstatecode}, #{item.loccityid}, #{item.steamlevel})
+        </foreach>
+    </insert>
+
+    <select id="findAllPlayerSteamIds" resultType="java.lang.String">
+        select steamid from player where deleted = false;
+    </select>
+
+</mapper>
