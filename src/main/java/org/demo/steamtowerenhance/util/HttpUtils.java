@@ -16,8 +16,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Component
 public class HttpUtils {
@@ -25,66 +25,74 @@ public class HttpUtils {
 
     private final OkHttpClient okHttpClient;
     private final ObjectMapper objectMapper;
-    private final CommonThreadPool commonThreadPool;
 
     public HttpUtils(OkHttpClient okHttpClient, ObjectMapper objectMapper, CommonThreadPool commonThreadPool) {
         this.okHttpClient = okHttpClient;
         this.objectMapper = objectMapper;
-        this.commonThreadPool = commonThreadPool;
     }
 
-    public String getAsString(@NotNull String url, @Nullable String caption) {
-        LOGGER.debug("Requesting " + (caption != null ? caption : "URL") + "[" + url + "]");
-        final Request request = new Request.Builder().url(url).build();
-        try (Response response = okHttpClient.newCall(request).execute()) {
-            if (response.code() != 200) {
-                LOGGER.warn("HTTP" + response.code() + " - " + url);
-                return null;
-            }
-            return response.body() == null ? null : response.body().string();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public<T> T getAsObject(@NotNull String url, @Nullable String caption, @NotNull Class<T> clazz) {
-        LOGGER.debug("Requesting " + (caption != null ? caption : "URL") + "[" + url + "]");
-        final Request request = new Request.Builder().url(url).build();
-        try (Response response = okHttpClient.newCall(request).execute()) {
-            if (response.code() != 200) {
-                LOGGER.warn("HTTP" + response.code() + " - " + url);
-                return null;
-            }
-            final InputStream inputStream = response.body() == null ? null : response.body().byteStream();
-            return objectMapper.readValue(inputStream, clazz);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public<T> Future<T> getAsObjectAsync(@NotNull String url, @Nullable String caption, @NotNull Class<T> clazz) {
-        return commonThreadPool.submit(() -> {
-            LOGGER.debug("Requesting(Async) " + (caption != null ? caption : "URL") + "[" + url + "]");
-            final Request request = new Request.Builder().url(url).build();
-            try (Response response = okHttpClient.newCall(request).execute()) {
-                if (response.code() != 200) {
-                    LOGGER.debug("HTTP" + response.code() + " - " + url);
-                    return null;
+    public<T> T get(@NotNull String url,
+                    @Nullable String caption,
+                    @NotNull Function<Response, T> successHandler,
+                    @Nullable Function<Response, T> failedHandler,
+                    @Nullable Consumer<Throwable> errorHandler) {
+        final Request request = new Request
+                .Builder()
+                .url(url)
+                .build();
+        try (final Response response = okHttpClient.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                return successHandler.apply(response);
+            } else {
+                LOGGER.warn("Response " + response.code() + " for " + (caption != null ? caption : "URL") + "[" + url + "]");
+                if (failedHandler != null) {
+                    return failedHandler.apply(response);
                 }
+                return null;
+            }
+        } catch (Exception e) {
+            if (errorHandler != null) {
+                errorHandler.accept(e);
+            } else {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
+    }
+
+    public String getAsString(@NotNull String url,
+                              @Nullable String caption,
+                              @Nullable Function<Response, String> failedHandler,
+                              @Nullable Consumer<Throwable> errorHandler) {
+        return get(url, caption, response -> {
+            try {
+                return response.body() == null ? "" : response.body().string();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, failedHandler, errorHandler);
+    }
+
+    public<T> T getAsObject(@NotNull String url,
+                            @Nullable String caption,
+                            @NotNull Class<T> clazz,
+                            @Nullable Function<Response, T> failedHandler,
+                            @Nullable Consumer<Throwable> errorHandler) {
+        return get(url, caption, response -> {
+            try {
                 final InputStream inputStream = response.body() == null ? null : response.body().byteStream();
                 return objectMapper.readValue(inputStream, clazz);
             } catch (IOException e) {
-                LOGGER.error("ERROR for " + caption + "[" + url + "]", e);
-                return null;
+                throw new RuntimeException(e);
             }
-        });
+        }, failedHandler, errorHandler);
     }
 
 
     public void getToFile(@NotNull String url, @Nullable String caption, @Nullable String path) throws IOException {
         final String theName = caption == null ? UUID.randomUUID().toString() : caption;
         final String thePath = path == null ? "http_response" : path;
-        stringToFile(getAsString(url, caption), thePath + "/" + theName);
+        stringToFile(getAsString(url, caption, null, null), thePath + "/" + theName);
     }
 
     private void stringToFile(String block, String uri) throws IOException {

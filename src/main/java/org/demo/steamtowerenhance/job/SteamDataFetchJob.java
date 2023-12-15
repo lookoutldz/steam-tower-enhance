@@ -1,12 +1,8 @@
 package org.demo.steamtowerenhance.job;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.demo.steamtowerenhance.config.CommonThreadPool;
-import org.demo.steamtowerenhance.domain.App;
 import org.demo.steamtowerenhance.domain.Friend;
 import org.demo.steamtowerenhance.domain.Player;
-import org.demo.steamtowerenhance.dto.steamresponse.AppListEntity;
-import org.demo.steamtowerenhance.dto.steamresponse.GetAppListResponse;
 import org.demo.steamtowerenhance.dto.steamresponse.GetFriendListResponse;
 import org.demo.steamtowerenhance.dto.steamresponse.GetPlayerSummariesResponse;
 import org.demo.steamtowerenhance.mapper.AppMapper;
@@ -19,9 +15,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
+import static java.util.stream.Collectors.toList;
+
+@Deprecated
 @Component
 public class SteamDataFetchJob {
 
@@ -32,33 +31,19 @@ public class SteamDataFetchJob {
     private final PlayerMapper playerMapper;
     private final FriendMapper friendMapper;
     private final HttpUtils httpUtils;
+    private final CommonThreadPool commonThreadPool;
 
     public SteamDataFetchJob(SteamWebApi steamWebApi,
                              AppMapper appMapper,
                              PlayerMapper playerMapper,
                              FriendMapper friendMapper,
-                             HttpUtils httpUtils, CommonThreadPool commonThreadPool) {
+                             HttpUtils httpUtils, CommonThreadPool commonThreadPool, CommonThreadPool commonThreadPool1) {
         this.steamWebApi = steamWebApi;
         this.appMapper = appMapper;
         this.playerMapper = playerMapper;
         this.friendMapper = friendMapper;
         this.httpUtils = httpUtils;
-    }
-
-    public void refreshAppList() {
-        int rows = 0;
-        GetAppListResponse getAppListResponse = httpUtils.getAsObject(steamWebApi.getAppList(), "getAppList", GetAppListResponse.class);
-        if (getAppListResponse != null) {
-            AppListEntity applist = getAppListResponse.applist();
-            if (applist != null) {
-                List<App> apps = applist.apps();
-                if (apps != null && apps.size() > 0) {
-                    rows = apps.size();
-                    appMapper.insertBatch(apps);
-                }
-            }
-        }
-        LOGGER.info("apps rows: " + rows);
+        this.commonThreadPool = commonThreadPool1;
     }
 
     // 将 list 按给定 size 分组
@@ -92,20 +77,16 @@ public class SteamDataFetchJob {
         final List<List<String>> groups = separateList(steamids, apiMax);
         List<Player> fullPlayers = new ArrayList<>(getCapacity(groups.size() * apiMax));
         for (List<String> group : groups) {
-            // 异步请求
-            final Future<GetPlayerSummariesResponse> playerSummariesFuture = httpUtils.getAsObjectAsync(
-                    steamWebApi.getPlayerSummaries(group), "GetPlayerSummaries", GetPlayerSummariesResponse.class);
+            // 请求
+            final GetPlayerSummariesResponse playerSummariesFuture = httpUtils.getAsObject(
+                    steamWebApi.getPlayerSummaries(group), "GetPlayerSummaries", GetPlayerSummariesResponse.class, null, null);
 
             final List<Player> players;
             final GetPlayerSummariesResponse playerSummariesResponse;
-            try {
-                if ((playerSummariesResponse = playerSummariesFuture.get()) != null
-                        && playerSummariesResponse.response() != null
-                        && (players = playerSummariesResponse.response().players()) != null) {
-                    fullPlayers.addAll(players);
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Error while getting part of players.", e);
+            if ((playerSummariesResponse = playerSummariesFuture) != null
+                    && playerSummariesResponse.response() != null
+                    && (players = playerSummariesResponse.response().players()) != null) {
+                fullPlayers.addAll(players);
             }
         }
         // 合并后插入数据库
@@ -124,46 +105,100 @@ public class SteamDataFetchJob {
         LOGGER.info("total players rows: " + rows);
     }
 
-    public void refreshFriendListForPlayer() {
+//    @Deprecated
+    public void refreshFriendListForPlayer0() {
         int rows = 0;
         // 获取 Player
         final List<String> steamids = playerMapper.findAllPlayerSteamIds();
-        // 为避免内存溢出, 每次更新 friend 表不超过 10 万, 按平均一个用户 100 个好友估算, 10 万数据约为 1000 个 player 的量
-        List<List<String>> groups = separateList(steamids, 1000);
-        for (List<String> group : groups) {
+        // 为避免内存溢出, 每次更新 friend 表不超过 1 万, 按平均一个用户 100 个好友估算, 1 万数据约为 100 个 player 的量
+        List<List<String>> groups = separateList(steamids, 100);
+        LOGGER.info("Steamids size: " + steamids.size() + ", separated to " + groups.size() + " groups");
+
+        for (int i = 0; i < groups.size(); i++) {
+            final List<String> group = groups.get(i);
             // 按 100 好友估算 capacity
             final int capacity = getCapacity((steamids.size() * 100));
-            final Map<String, Future<GetFriendListResponse>> futures = new HashMap<>(capacity);
+            final Map<String, GetFriendListResponse> futures = new HashMap<>(capacity);
             // 获取每个 Player 的 Friend
             for (String steamid : group) {
-                Future<GetFriendListResponse> friendListResponseFuture = httpUtils.getAsObjectAsync(
-                        steamWebApi.getFriendList(steamid), "getFriendList", GetFriendListResponse.class);
-                futures.put(steamid, friendListResponseFuture);
+                GetFriendListResponse friendListResponse = httpUtils.getAsObject(
+                        steamWebApi.getFriendList(steamid), "getFriendList", GetFriendListResponse.class, null , null);
+                futures.put(steamid, friendListResponse);
             }
             // 合并本组内的数据并进行一次数据库写入
             final List<Friend> fullFriendList = new ArrayList<>(capacity);
-            try {
-                for (Map.Entry<String, Future<GetFriendListResponse>> entry : futures.entrySet()) {
-                    final String steamid = entry.getKey();
-                    final Future<GetFriendListResponse> future = entry.getValue();
-                    final List<Friend> friends;
-                    final GetFriendListResponse getFriendListResponse;
-                    if ((getFriendListResponse = future.get()) != null
-                            && getFriendListResponse.friendslist() != null
-                            && (friends = getFriendListResponse.friendslist().friends()) != null) {
-                        for (Friend friend : friends) {
-                            friend.setSteamid(steamid);
-                        }
-                        fullFriendList.addAll(friends);
+            for (Map.Entry<String, GetFriendListResponse> entry : futures.entrySet()) {
+                final String steamid = entry.getKey();
+                final GetFriendListResponse future = entry.getValue();
+                final List<Friend> friends;
+                final GetFriendListResponse getFriendListResponse;
+                if ((getFriendListResponse = future) != null
+                        && getFriendListResponse.friendslist() != null
+                        && (friends = getFriendListResponse.friendslist().friends()) != null) {
+                    for (Friend friend : friends) {
+                        friend.setSteamid(steamid);
                     }
+                    if (friends.size() > 0) {
+                        fullFriendList.addAll(friends);
+                    } else {
+                        LOGGER.warn("friends list for " + steamid + " is empty");
+                    }
+                } else {
+                        LOGGER.warn("friends list for " + steamid + " is null result");
                 }
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Error while getting part of friends.", e);
+            }
+            if (fullFriendList.isEmpty()) {
+                LOGGER.warn("Group " + i + " is empty.");
+                continue;
             }
             friendMapper.insertBatch(fullFriendList);
             rows += fullFriendList.size();
+            LOGGER.info("Group " + i + " finished.");
         }
         LOGGER.info("All friends rows: " + rows);
+    }
+
+    public void refreshFriendListForPlayer() {
+        int rows = 0;
+        // 为避免内存溢出, 每次更新 friend 表不超过 1 万, 按平均一个用户 100 个好友估算, 1 万数据约为 100 个 player 的量
+        final List<String> steamids = playerMapper.findAllPlayerSteamIds();
+        final List<List<String>> groups = separateList(steamids, 100);
+        LOGGER.info("Steamids size: " + steamids.size() + ", separated to " + groups.size() + " groups");
+
+        for (int i = 0; i < groups.size(); i++) {
+            final List<String> group = groups.get(i);
+            final List<CompletableFuture<List<Friend>>> completableFutures = group.parallelStream()
+                    .map(steamid -> CompletableFuture.supplyAsync(() -> httpUtils.getAsObject(steamWebApi.getFriendList(steamid), "getFriendList", GetFriendListResponse.class, null, null))
+                            .thenApplyAsync(response -> processFriendListResponse(response, steamid), commonThreadPool))
+                    .toList();
+
+            CompletableFuture<Void> allOf = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[0]));
+
+            try {
+                allOf.get(); // 等待所有异步任务完成
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.error("Error while getting friends.", e);
+            }
+
+            List<Friend> fullFriendList = completableFutures.stream()
+                    .map(CompletableFuture::join)
+                    .flatMap(List::stream)
+                    .collect(toList());
+
+            friendMapper.insertBatch(fullFriendList);
+            rows += fullFriendList.size();
+            LOGGER.info("Group " + i + " finished.");
+        }
+
+        LOGGER.info("All friends rows: " + rows);
+    }
+    private List<Friend> processFriendListResponse(GetFriendListResponse response, String steamid) {
+        if (response != null && response.friendslist() != null) {
+            return response.friendslist().friends().stream()
+                    .peek(friend -> friend.setSteamid(steamid))
+                    .collect(toList());
+        }
+        return Collections.emptyList();
     }
 
     public void fetchPlayerSummariesForFriendList() {
@@ -187,25 +222,21 @@ public class SteamDataFetchJob {
         // 多线程请求
         final int capacity = getCapacity(steamids.size() * 100);
         final List<Player> fullPlayers = new ArrayList<>(capacity);
-        final List<Future<GetPlayerSummariesResponse>> futures = new ArrayList<>(capacity);
+        final List<GetPlayerSummariesResponse> futures = new ArrayList<>(capacity);
 
         for (List<String> group : groups) {
-            final Future<GetPlayerSummariesResponse> playerSummariesFuture = httpUtils.getAsObjectAsync(
-                    steamWebApi.getPlayerSummaries(group), "GetPlayerSummaries", GetPlayerSummariesResponse.class);
+            final GetPlayerSummariesResponse playerSummariesFuture = httpUtils.getAsObject(
+                    steamWebApi.getPlayerSummaries(group), "GetPlayerSummaries", GetPlayerSummariesResponse.class, null, null);
             futures.add(playerSummariesFuture);
         }
-        try {
-            for (Future<GetPlayerSummariesResponse> future : futures) {
-                final GetPlayerSummariesResponse getPlayerSummariesResponse;
-                final List<Player> players;
-                if ((getPlayerSummariesResponse = future.get()) != null
-                        && getPlayerSummariesResponse.response() != null
-                        && (players = getPlayerSummariesResponse.response().players()) != null) {
-                    fullPlayers.addAll(players);
-                }
+        for (GetPlayerSummariesResponse future : futures) {
+            final GetPlayerSummariesResponse getPlayerSummariesResponse;
+            final List<Player> players;
+            if ((getPlayerSummariesResponse = future) != null
+                    && getPlayerSummariesResponse.response() != null
+                    && (players = getPlayerSummariesResponse.response().players()) != null) {
+                fullPlayers.addAll(players);
             }
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
         }
 
         // 更新 DB
