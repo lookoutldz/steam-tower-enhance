@@ -19,6 +19,8 @@ public interface FriendMapper extends BaseMapper<Friend> {
 
     void insertBatch(Collection<Friend> friends);
 
+    Integer countByDistinctFriendsteamid();
+
     List<String> selectAllDistinctFriendsId();
 }
 

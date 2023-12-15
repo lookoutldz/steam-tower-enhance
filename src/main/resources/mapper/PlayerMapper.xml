@@ -67,4 +67,12 @@
         select steamid from player where deleted = false;
     </select>
 
+    <select id="countAllPlayers" resultType="java.lang.Integer">
+        select count(`steamid`) from player where deleted = false;
+    </select>
+
+    <select id="findPlayerSteamIds" resultType="java.lang.String">
+        select steamid from player where deleted = false limit #{offset}, #{pageSize};
+    </select>
+
 </mapper>

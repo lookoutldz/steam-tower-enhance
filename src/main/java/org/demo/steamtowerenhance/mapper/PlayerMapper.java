@@ -1,5 +1,6 @@
 package org.demo.steamtowerenhance.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.demo.steamtowerenhance.domain.Player;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
@@ -19,6 +20,10 @@ public interface PlayerMapper extends BaseMapper<Player> {
     void insertBatch(Collection<Player> players);
 
     List<String> findAllPlayerSteamIds();
+
+    List<String> findPlayerSteamIds(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize);
+
+    Integer countAllPlayers();
 }
 
 

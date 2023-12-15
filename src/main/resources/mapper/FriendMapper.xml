@@ -26,11 +26,15 @@
         insert ignore into friend(steamid,friendsteamid,relationship,friend_since)
         values
         <foreach collection="list" separator="," item="item">
-            (#{item.steamid}, #{item.steamid}, #{item.relationship}, #{item.friendSince})
+            (#{item.steamid}, #{item.friendsteamid}, #{item.relationship}, #{item.friendSince})
         </foreach>
     </insert>
 
     <select id="selectAllDistinctFriendsId" resultType="java.lang.String">
         select distinct `friendsteamid` from friend where deleted = false
+    </select>
+
+    <select id="countByDistinctFriendsteamid" resultType="java.lang.Integer">
+        select count(distinct `friendsteamid`) from friend where deleted = false
     </select>
 </mapper>
