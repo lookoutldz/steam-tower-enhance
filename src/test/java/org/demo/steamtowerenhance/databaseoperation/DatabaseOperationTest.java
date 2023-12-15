@@ -2,7 +2,7 @@ package org.demo.steamtowerenhance.databaseoperation;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.demo.steamtowerenhance.domain.App;
-import org.demo.steamtowerenhance.job.SteamDataFetchJob;
+import org.demo.steamtowerenhance.job.AppFetcher;
 import org.demo.steamtowerenhance.mapper.AppMapper;
 import org.demo.steamtowerenhance.thirdparty.SteamWebApi;
 import org.demo.steamtowerenhance.util.HttpUtils;
@@ -24,7 +24,7 @@ public class DatabaseOperationTest {
     @Autowired
     private AppMapper appMapper;
     @Autowired
-    private SteamDataFetchJob steamDataFetchJob;
+    private AppFetcher appFetcher;
 
     @Test
     void getOneApp() {
@@ -38,7 +38,7 @@ public class DatabaseOperationTest {
     @Test
     void insertApps() {
         long t1 = System.currentTimeMillis();
-        steamDataFetchJob.refreshAppList();
+        appFetcher.fetchApps();
         long t2 = System.currentTimeMillis();
         System.out.println("by " + (t2 - t1) + "ms");
     }
@@ -46,7 +46,7 @@ public class DatabaseOperationTest {
     @Test
     void refreshPlayerSummaries() {
         long t1 = System.currentTimeMillis();
-        steamDataFetchJob.refreshPlayerSummaries();
+        // TODO
         long t2 = System.currentTimeMillis();
         System.out.println("by " + (t2 - t1) + "ms");
     }
@@ -54,7 +54,7 @@ public class DatabaseOperationTest {
     @Test
     void refreshFriendListForPlayer() throws InterruptedException {
         long t1 = System.currentTimeMillis();
-        steamDataFetchJob.refreshFriendListForPlayer();
+        // TODO
         long t2 = System.currentTimeMillis();
         System.out.println("by " + (t2 - t1) + "ms");
         Thread.sleep(60000);
@@ -63,7 +63,7 @@ public class DatabaseOperationTest {
     @Test
     void fetchPlayerSummariesForFriendList() {
         long t1 = System.currentTimeMillis();
-        steamDataFetchJob.fetchPlayerSummariesForFriendList();
+        // TODO
         long t2 = System.currentTimeMillis();
         System.out.println("by " + (t2 - t1) + "ms");
     }
