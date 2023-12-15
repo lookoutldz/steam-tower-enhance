@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class DatabaseOperationTest {
 
-    @Value("${custom.testAppId}")
+    @Value("${custom.test-app-id}")
     private Integer testAppId;
 
     @Autowired

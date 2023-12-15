@@ -8,12 +8,24 @@ spring:
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+# mybatis
 mybatis:
   mapper-locations: classpath*:mapper/*.xml
-#mybatis-plus:
-#  configuration:
-#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# mybatis-plus log sql
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# custom settings
 custom:
-  key: abc
-  testSteamId: abc
-  testAppId: 1584090
+  thread-pool:
+    core-pool-size: 2
+    max-pool-size: 64
+    keep-alive-minutes: 1
+    queue-size: 2147483647
+  steam:
+    key: abc
+    test-steam-id: abc
+    test-app-id: 1584090

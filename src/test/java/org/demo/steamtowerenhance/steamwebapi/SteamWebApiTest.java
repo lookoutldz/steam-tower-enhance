@@ -13,10 +13,10 @@ import java.util.List;
 @SpringBootTest
 public class SteamWebApiTest {
 
-    @Value("${custom.testSteamId}")
+    @Value("${custom.steam.test-steam-id}")
     private String testSteamId;
 
-    @Value("${custom.testAppId}")
+    @Value("${custom.steam.test-app-id}")
     private Integer testAppId;
 
     @Autowired

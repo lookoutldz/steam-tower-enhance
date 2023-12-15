@@ -8,7 +8,7 @@ import java.util.Collection;
 @Component
 public class SteamWebApi {
 
-    @Value("${custom.key}")
+    @Value("${custom.steam.key}")
     private String key;
 
     // ISteamApps
