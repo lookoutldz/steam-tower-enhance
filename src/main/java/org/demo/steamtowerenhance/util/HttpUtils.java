@@ -16,7 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @Component
@@ -35,7 +35,7 @@ public class HttpUtils {
                     @Nullable String caption,
                     @NotNull Function<Response, T> successHandler,
                     @Nullable Function<Response, T> failedHandler,
-                    @Nullable Consumer<Throwable> errorHandler) {
+                    @Nullable BiConsumer<Request, Throwable> errorHandler) {
         final Request request = new Request
                 .Builder()
                 .url(url)
@@ -52,7 +52,7 @@ public class HttpUtils {
             }
         } catch (Exception e) {
             if (errorHandler != null) {
-                errorHandler.accept(e);
+                errorHandler.accept(request, e);
             } else {
                 throw new RuntimeException(e);
             }
@@ -63,7 +63,7 @@ public class HttpUtils {
     public String getAsString(@NotNull String url,
                               @Nullable String caption,
                               @Nullable Function<Response, String> failedHandler,
-                              @Nullable Consumer<Throwable> errorHandler) {
+                              @Nullable BiConsumer<Request, Throwable> errorHandler) {
         return get(url, caption, response -> {
             try {
                 return response.body() == null ? "" : response.body().string();
@@ -77,7 +77,7 @@ public class HttpUtils {
                             @Nullable String caption,
                             @NotNull Class<T> clazz,
                             @Nullable Function<Response, T> failedHandler,
-                            @Nullable Consumer<Throwable> errorHandler) {
+                            @Nullable BiConsumer<Request, Throwable> errorHandler) {
         return get(url, caption, response -> {
             try {
                 final InputStream inputStream = response.body() == null ? null : response.body().byteStream();
