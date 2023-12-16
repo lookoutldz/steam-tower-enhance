@@ -5,8 +5,8 @@ import okhttp3.Response;
 import org.demo.steamtowerenhance.config.CommonThreadPool;
 import org.demo.steamtowerenhance.domain.Friend;
 import org.demo.steamtowerenhance.dto.steamresponse.GetFriendListResponse;
-import org.demo.steamtowerenhance.mapper.FriendMapper;
-import org.demo.steamtowerenhance.mapper.PlayerMapper;
+import org.demo.steamtowerenhance.service.FriendService;
+import org.demo.steamtowerenhance.service.PlayerService;
 import org.demo.steamtowerenhance.thirdparty.SteamWebApi;
 import org.demo.steamtowerenhance.util.HttpUtils;
 import org.slf4j.Logger;
@@ -28,36 +28,37 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
     private static final int FUTURE_ERROR_CODE = 998;
     private static final String GET_FRIEND_LIST_CAPTION = "getFriendList";
     private static final String REQUEST_PARAM_STEAMID = "steamid";
-
     private static final int MAX_UPDATE_STEAMID = 100;
 
-    // TODO 后续处理
     private final ConcurrentHashMap<String, Integer> failedMap = new ConcurrentHashMap<>();
 
     private final SteamWebApi steamWebApi;
     private final HttpUtils httpUtils;
-    private final FriendMapper friendMapper;
-    private final PlayerMapper playerMapper;
+    private final FriendService friendService;
+    private final PlayerService playerService;
     private final CommonThreadPool commonThreadPool;
 
     public FriendFetcher(SteamWebApi steamWebApi,
                          HttpUtils httpUtils,
-                         FriendMapper friendMapper,
-                         PlayerMapper playerMapper,
+                         FriendService friendService,
+                         PlayerService playerService,
                          CommonThreadPool commonThreadPool) {
         this.steamWebApi = steamWebApi;
         this.httpUtils = httpUtils;
-        this.friendMapper = friendMapper;
-        this.playerMapper = playerMapper;
+        this.friendService = friendService;
+        this.playerService = playerService;
         this.commonThreadPool = commonThreadPool;
     }
 
-    // TODO 考虑事务
+    /**
+     * 批量获取用户好友列表并插入数据库
+     * 策略: insert ignore
+     */
     @Override
     public void fetchFriends() {
         int total = 0;
         // 1. count steamid from player
-        final Integer allPlayerNum = playerMapper.countAllPlayers();
+        final Integer allPlayerNum = playerService.countAllPlayers();
 
         // 2. select steamids partly if necessary
         final int pageSize = 10000;
@@ -70,7 +71,7 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
 
         for (int i = 0; i < pageCount; i++) {
             int rows = 0;
-            final List<String> pagedSteamIds = playerMapper.findPlayerSteamIds(i * pageSize, pageSize);
+            final List<String> pagedSteamIds = playerService.findPlayerSteamIds(i * pageSize, pageSize);
             // 3. fetch api async
             List<List<String>> steamidsList = separateList(pagedSteamIds, MAX_UPDATE_STEAMID);
 
@@ -90,8 +91,10 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
                 try {
                     // 同步
                     allOfFuture.get();
-                    friendMapper.insertBatch(friendConcurrentList);
                     final int row = friendConcurrentList.size();
+                    if (row > 0) {
+                        friendService.insertBatch(friendConcurrentList);
+                    }
                     LOGGER.debug("Group " + j + " finished, rows = " + row);
                     rows += row;
                     total += rows;
@@ -107,7 +110,13 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
         LOGGER.info("本次 fetch 总数据, total: " + total);
     }
 
-    private CompletableFuture<Void> generateFutureTask(String steamid, Collection<Friend> friendConcurrentList) {
+    /**
+     * 使用 CompletableFuture 来组织网络IO和数据库IO操作
+     * @param steamid steamid
+     * @param friendConcurrentList friend list
+     * @return CompletableFuture<Void>
+     */
+    public CompletableFuture<Void> generateFutureTask(String steamid, Collection<Friend> friendConcurrentList) {
         return CompletableFuture
                 .supplyAsync(() ->
                         httpUtils.getAsObject(
@@ -132,7 +141,9 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
                     }
                 })
                 .handleAsync((unused, throwable) -> {
-                    LOGGER.error("Something went wrong: " + throwable.getMessage(), throwable);
+                    if (throwable != null) {
+                        LOGGER.error("Something went wrong: " + throwable.getMessage(), throwable);
+                    }
                     return unused;
                 });
     }
@@ -154,6 +165,46 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
             failedMap.put(steamid, REQUEST_ERROR_CODE);
         } else {
             LOGGER.error("Request error: " + throwable.getMessage(), throwable);
+        }
+    }
+
+    /**
+     * 以往更新失败的重新更新
+     */
+    public void reFetchFailedRecords() {
+        final ConcurrentHashMap.KeySetView<String, Integer> keys = failedMap.keySet();
+        final int size = keys.size();
+        LOGGER.info("failedMap size : " + size);
+        if (size < 1) {
+            return;
+        }
+        // 拆分
+        final List<List<String>> steamidsList =
+                size > MAX_UPDATE_STEAMID
+                        ? separateList(keys.stream().toList(), MAX_UPDATE_STEAMID)
+                        : List.of(keys.stream().toList());
+
+        for (List<String> steamids : steamidsList) {
+            final CopyOnWriteArrayList<Friend> friendConcurrentList = new CopyOnWriteArrayList<>();
+            final List<CompletableFuture<Void>> futures = new ArrayList<>(getCapacity(steamids.size()));
+            for (String steamid : steamids) {
+                futures.add(generateFutureTask(steamid, friendConcurrentList));
+            }
+            CompletableFuture<Void> allOfFuture = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+            try {
+                allOfFuture.get();
+                final int row = friendConcurrentList.size();
+                if (row > 0) {
+                    friendService.insertBatch(friendConcurrentList);
+                }
+                // 成功后删除failedMap记录
+                steamids.forEach(failedMap::remove);
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.error("Error while future getting: " + e.getMessage(), e);
+                for (String steamid : steamids) {
+                    failedMap.put(steamid, FUTURE_ERROR_CODE);
+                }
+            }
         }
     }
 }
