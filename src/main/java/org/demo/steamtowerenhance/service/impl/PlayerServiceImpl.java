@@ -5,6 +5,10 @@ import org.demo.steamtowerenhance.domain.Player;
 import org.demo.steamtowerenhance.service.PlayerService;
 import org.demo.steamtowerenhance.mapper.PlayerMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
 * @author amos
@@ -15,6 +19,26 @@ import org.springframework.stereotype.Service;
 public class PlayerServiceImpl extends ServiceImpl<PlayerMapper, Player>
     implements PlayerService{
 
+    @Transactional
+    @Override
+    public void insertBatch(Collection<Player> players) {
+        baseMapper.insertBatch(players);
+    }
+
+    @Override
+    public List<String> findAllPlayerSteamIds() {
+        return baseMapper.findAllPlayerSteamIds();
+    }
+
+    @Override
+    public List<String> findPlayerSteamIds(Integer offset, Integer pageSize) {
+        return baseMapper.findPlayerSteamIds(offset, pageSize);
+    }
+
+    @Override
+    public Integer countAllPlayers() {
+        return baseMapper.countAllPlayers();
+    }
 }
 
 

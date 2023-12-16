@@ -5,6 +5,10 @@ import org.demo.steamtowerenhance.domain.Friend;
 import org.demo.steamtowerenhance.service.FriendService;
 import org.demo.steamtowerenhance.mapper.FriendMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
 * @author amos
@@ -15,6 +19,21 @@ import org.springframework.stereotype.Service;
 public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend>
     implements FriendService{
 
+    @Transactional
+    @Override
+    public void insertBatch(Collection<Friend> friends) {
+        baseMapper.insertBatch(friends);
+    }
+
+    @Override
+    public Integer countByDistinctFriendsteamid() {
+        return baseMapper.countByDistinctFriendsteamid();
+    }
+
+    @Override
+    public List<String> selectAllDistinctFriendsId() {
+        return baseMapper.selectAllDistinctFriendsId();
+    }
 }
 
 
