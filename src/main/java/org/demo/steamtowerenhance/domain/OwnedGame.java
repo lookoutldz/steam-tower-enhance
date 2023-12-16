@@ -1,5 +1,7 @@
 package org.demo.steamtowerenhance.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -11,6 +13,7 @@ import java.util.Date;
  */
 @TableName(value ="owned_game")
 public class OwnedGame implements Serializable {
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     private String steamid;

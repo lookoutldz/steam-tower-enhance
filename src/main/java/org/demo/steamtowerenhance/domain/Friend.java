@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
@@ -14,10 +15,13 @@ import java.util.Date;
  */
 @TableName(value ="friend")
 public class Friend implements Serializable {
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
+    @JsonIgnore
     private String steamid;
 
+    @JsonProperty("steamid")
     private String friendsteamid;
 
     private String relationship;

@@ -12,6 +12,7 @@ import java.util.Date;
  */
 @TableName(value ="game_schema")
 public class GameSchema implements Serializable {
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     private Integer appid;

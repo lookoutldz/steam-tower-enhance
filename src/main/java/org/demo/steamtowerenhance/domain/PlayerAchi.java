@@ -12,6 +12,7 @@ import java.util.Date;
  */
 @TableName(value ="player_achi")
 public class PlayerAchi implements Serializable {
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     private String steamid;
