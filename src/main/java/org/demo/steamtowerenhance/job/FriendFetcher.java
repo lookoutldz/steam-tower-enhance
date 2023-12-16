@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +24,12 @@ import java.util.concurrent.ExecutionException;
 @Component
 public class FriendFetcher extends AbstractSteamDataFetcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(FriendFetcher.class);
+    private static final int REQUEST_ERROR_CODE = 999;
+    private static final int FUTURE_ERROR_CODE = 998;
+    private static final String GET_FRIEND_LIST_CAPTION = "getFriendList";
+    private static final String REQUEST_PARAM_STEAMID = "steamid";
+
+    private static final int MAX_UPDATE_STEAMID = 100;
 
     // TODO 后续处理
     private final ConcurrentHashMap<String, Integer> failedMap = new ConcurrentHashMap<>();
@@ -65,7 +72,7 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
             int rows = 0;
             final List<String> pagedSteamIds = playerMapper.findPlayerSteamIds(i * pageSize, pageSize);
             // 3. fetch api async
-            List<List<String>> steamidsList = separateList(pagedSteamIds, 100);
+            List<List<String>> steamidsList = separateList(pagedSteamIds, MAX_UPDATE_STEAMID);
 
             for (int j = 0; j < steamidsList.size(); j++) {
                 List<String> steamids = steamidsList.get(j);
@@ -75,34 +82,7 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
                 final List<CompletableFuture<Void>> futures = new ArrayList<>(capacity);
                 for (String steamid : steamids) {
                     // 异步任务
-                    CompletableFuture<Void> future = CompletableFuture
-                            .supplyAsync(() ->
-                                    httpUtils.getAsObject(
-                                            steamWebApi.getFriendList(steamid),
-                                            "getFriendList",
-                                            GetFriendListResponse.class,
-                                            this::requestFailedHandler,
-                                            this::requestErrorHandler
-                                    ), commonThreadPool)
-                            .thenAcceptAsync(getFriendListResponse -> {
-                                final List<Friend> friends;
-                                if (getFriendListResponse != null
-                                        && getFriendListResponse.friendslist() != null
-                                        && (friends = getFriendListResponse.friendslist().friends()) != null) {
-                                    List<Friend> actualFriends = friends.parallelStream()
-                                            .filter(friend -> friend.getFriendsteamid() != null)
-                                            .toList();
-                                    actualFriends.parallelStream().forEach(friend -> friend.setSteamid(steamid));
-                                    if (!actualFriends.isEmpty()) {
-                                        friendConcurrentList.addAll(actualFriends);
-                                    }
-                                }
-                            })
-                            .handleAsync((unused, throwable) -> {
-                                LOGGER.debug("Something went wrong.", throwable);
-                                return unused;
-                            });
-                    futures.add(future);
+                    futures.add(generateFutureTask(steamid, friendConcurrentList));
                 }
 
                 // sync and insert
@@ -116,7 +96,10 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
                     rows += row;
                     total += rows;
                 } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
+                    LOGGER.error("Error while future getting: " + e.getMessage(), e);
+                    for (String steamid : steamids) {
+                        failedMap.put(steamid, FUTURE_ERROR_CODE);
+                    }
                 }
             }
             LOGGER.info("本轮次: " + i +", 查询 steamid: " + pagedSteamIds.size() + ", friendsteamid: " + rows);
@@ -124,8 +107,38 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
         LOGGER.info("本次 fetch 总数据, total: " + total);
     }
 
+    private CompletableFuture<Void> generateFutureTask(String steamid, Collection<Friend> friendConcurrentList) {
+        return CompletableFuture
+                .supplyAsync(() ->
+                        httpUtils.getAsObject(
+                                steamWebApi.getFriendList(steamid),
+                                GET_FRIEND_LIST_CAPTION,
+                                GetFriendListResponse.class,
+                                this::requestFailedHandler,
+                                this::requestErrorHandler
+                        ), commonThreadPool)
+                .thenAcceptAsync(getFriendListResponse -> {
+                    final List<Friend> friends;
+                    if (getFriendListResponse != null
+                            && getFriendListResponse.friendslist() != null
+                            && (friends = getFriendListResponse.friendslist().friends()) != null) {
+                        List<Friend> actualFriends = friends.parallelStream()
+                                .filter(friend -> friend.getFriendsteamid() != null)
+                                .toList();
+                        actualFriends.parallelStream().forEach(friend -> friend.setSteamid(steamid));
+                        if (!actualFriends.isEmpty()) {
+                            friendConcurrentList.addAll(actualFriends);
+                        }
+                    }
+                })
+                .handleAsync((unused, throwable) -> {
+                    LOGGER.error("Something went wrong: " + throwable.getMessage(), throwable);
+                    return unused;
+                });
+    }
+
     private GetFriendListResponse requestFailedHandler(Response response) {
-        String steamid = response.request().url().queryParameter("steamid");
+        String steamid = response.request().url().queryParameter(REQUEST_PARAM_STEAMID);
         if (steamid != null) {
             int code = response.code();
             failedMap.put(steamid, code);
@@ -136,12 +149,11 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
     }
 
     private void requestErrorHandler(Request request, Throwable throwable) {
-        String steamid = request.url().queryParameter("steamid");
+        String steamid = request.url().queryParameter(REQUEST_PARAM_STEAMID);
         if (steamid != null) {
-            int code = 999;
-            failedMap.put(steamid, code);
+            failedMap.put(steamid, REQUEST_ERROR_CODE);
         } else {
-            LOGGER.warn("Invalid steamid: null");
+            LOGGER.error("Request error: " + throwable.getMessage(), throwable);
         }
     }
 }
