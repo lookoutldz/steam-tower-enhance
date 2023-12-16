@@ -82,6 +82,10 @@ public class HttpUtils {
             try {
                 final InputStream inputStream = response.body() == null ? null : response.body().byteStream();
                 return objectMapper.readValue(inputStream, clazz);
+                // 调试用
+//                final String str = response.body() == null ? "" : response.body().string();
+//                System.out.println(str);
+//                return objectMapper.readValue(str, clazz);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
