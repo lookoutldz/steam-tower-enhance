@@ -29,6 +29,7 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
     private static final String GET_FRIEND_LIST_CAPTION = "getFriendList";
     private static final String REQUEST_PARAM_STEAMID = "steamid";
     private static final int MAX_UPDATE_STEAMID = 100;
+    private static final int DB_QUERY_PAGE_SIZE = 10000;
 
     private final ConcurrentHashMap<String, Integer> failedMap = new ConcurrentHashMap<>();
 
@@ -58,16 +59,11 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
     public void fetchFriends() {
         int total = 0;
         // 1. count steamid from player
-        final Integer allPlayerNum = playerService.countAllPlayers();
+        final Integer allPlayerCount = playerService.countAllPlayers();
 
         // 2. select steamids partly if necessary
-        final int pageSize = 10000;
-        final int pageCount;
-        if (allPlayerNum > pageSize) {
-            pageCount = allPlayerNum / pageSize + 1;
-        } else {
-            pageCount = 1;
-        }
+        final int pageSize = DB_QUERY_PAGE_SIZE;
+        final int pageCount = allPlayerCount > pageSize ? allPlayerCount / pageSize + 1 : 1;
 
         for (int i = 0; i < pageCount; i++) {
             int rows = 0;
@@ -97,7 +93,6 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
                     }
                     LOGGER.debug("Group " + j + " finished, rows = " + row);
                     rows += row;
-                    total += rows;
                 } catch (InterruptedException | ExecutionException e) {
                     LOGGER.error("Error while future getting: " + e.getMessage(), e);
                     for (String steamid : steamids) {
@@ -105,7 +100,8 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
                     }
                 }
             }
-            LOGGER.info("本轮次: " + i +", 查询 steamid: " + pagedSteamIds.size() + ", friendsteamid: " + rows);
+            LOGGER.info("本轮次: " + i +", 查询 steamid: " + pagedSteamIds.size() + ", DB 有效 friend 记录: " + rows);
+            total += rows;
         }
         LOGGER.info("本次 fetch 总数据, total: " + total);
     }
@@ -150,11 +146,11 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
 
     private GetFriendListResponse requestFailedHandler(Response response) {
         String steamid = response.request().url().queryParameter(REQUEST_PARAM_STEAMID);
+        final int code = response.code();
         if (steamid != null) {
-            int code = response.code();
             failedMap.put(steamid, code);
         } else {
-            LOGGER.warn("Invalid steamid: null");
+            LOGGER.warn("HTTP " + code + " for null steamid");
         }
         return null;
     }
@@ -164,7 +160,9 @@ public class FriendFetcher extends AbstractSteamDataFetcher {
         if (steamid != null) {
             failedMap.put(steamid, REQUEST_ERROR_CODE);
         } else {
-            LOGGER.error("Request error: " + throwable.getMessage(), throwable);
+            if (throwable != null) {
+                LOGGER.error("Request error: " + throwable.getMessage(), throwable);
+            }
         }
     }
 
