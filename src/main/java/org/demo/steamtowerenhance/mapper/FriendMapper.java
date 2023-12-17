@@ -21,6 +21,8 @@ public interface FriendMapper extends BaseMapper<Friend> {
 
     Integer countByDistinctFriendsteamid();
 
+    List<String> findDistinctFriendSteamIds(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize);
+
     List<String> selectAllDistinctFriendsId();
 }
 

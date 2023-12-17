@@ -1,8 +1,7 @@
 package org.demo.steamtowerenhance.service;
 
-import org.apache.ibatis.annotations.Param;
-import org.demo.steamtowerenhance.domain.Player;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.demo.steamtowerenhance.domain.Player;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,7 +16,7 @@ public interface PlayerService extends IService<Player> {
 
     List<String> findAllPlayerSteamIds();
 
-    List<String> findPlayerSteamIds(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize);
+    List<String> findPlayerSteamIds(Integer offset, Integer pageSize);
 
     Integer countAllPlayers();
 }

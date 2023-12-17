@@ -37,4 +37,8 @@
     <select id="countByDistinctFriendsteamid" resultType="java.lang.Integer">
         select count(distinct `friendsteamid`) from friend where deleted = false
     </select>
+
+    <select id="findDistinctFriendSteamIds" resultType="java.lang.String">
+        select distinct `friendsteamid` from friend where deleted = false limit #{offset}, #{pageSize}
+    </select>
 </mapper>

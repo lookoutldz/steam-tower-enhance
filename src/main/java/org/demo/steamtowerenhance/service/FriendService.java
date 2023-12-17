@@ -1,7 +1,7 @@
 package org.demo.steamtowerenhance.service;
 
-import org.demo.steamtowerenhance.domain.Friend;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.demo.steamtowerenhance.domain.Friend;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,6 +15,8 @@ public interface FriendService extends IService<Friend> {
     void insertBatch(Collection<Friend> friends);
 
     Integer countByDistinctFriendsteamid();
+
+    List<String> findDistinctFriendSteamIds(Integer offset, Integer pageSize);
 
     List<String> selectAllDistinctFriendsId();
 }

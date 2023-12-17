@@ -31,6 +31,11 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend>
     }
 
     @Override
+    public List<String> findDistinctFriendSteamIds(Integer offset, Integer pageSize) {
+        return baseMapper.findDistinctFriendSteamIds(offset, pageSize);
+    }
+
+    @Override
     public List<String> selectAllDistinctFriendsId() {
         return baseMapper.selectAllDistinctFriendsId();
     }
