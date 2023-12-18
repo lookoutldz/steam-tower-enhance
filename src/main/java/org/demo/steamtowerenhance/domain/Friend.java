@@ -14,7 +14,7 @@ import java.util.Date;
  * @TableName friend
  */
 @TableName(value ="friend")
-public class Friend implements Serializable {
+public class Friend implements DatabaseEntity {
     @TableId(type = IdType.AUTO)
     private Integer id;
 

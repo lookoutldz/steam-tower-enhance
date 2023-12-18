@@ -4,4 +4,4 @@ import org.demo.steamtowerenhance.domain.Player;
 
 import java.util.List;
 
-public record GetPlayerSummariesInnerResponse(List<Player> players) {}
+public record GetPlayerSummariesInnerResponse(List<Player> players) implements SteamResponse {}

@@ -12,7 +12,7 @@ import java.util.Date;
  * @TableName owned_game
  */
 @TableName(value ="owned_game")
-public class OwnedGame implements Serializable {
+public class OwnedGame implements DatabaseEntity {
     @TableId(type = IdType.AUTO)
     private Integer id;
 

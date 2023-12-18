@@ -10,11 +10,11 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 
+ *
  * @TableName app
  */
 @TableName(value ="app")
-public class App implements Serializable {
+public class App implements DatabaseEntity {
 
     @TableId(type = IdType.AUTO)
     private Integer id;

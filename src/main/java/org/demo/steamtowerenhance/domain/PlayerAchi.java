@@ -11,7 +11,7 @@ import java.util.Date;
  * @TableName player_achi
  */
 @TableName(value ="player_achi")
-public class PlayerAchi implements Serializable {
+public class PlayerAchi implements DatabaseEntity {
     @TableId(type = IdType.AUTO)
     private Integer id;
 
