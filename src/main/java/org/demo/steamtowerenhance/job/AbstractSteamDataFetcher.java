@@ -1,9 +1,11 @@
 package org.demo.steamtowerenhance.job;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
-public abstract class AbstractSteamDataFetcher {
+import static java.util.stream.Collectors.toList;
+
+public abstract class AbstractSteamDataFetcher implements SteamDataFetcher {
     public void fetchApps() {
         throw new RuntimeException("Not implemented yet.");
     }
@@ -30,21 +32,14 @@ public abstract class AbstractSteamDataFetcher {
 
     // 将 list 按给定 size 分组
     protected <T> List<List<T>> separateList(List<T> list, int groupSize) {
-        final List<List<T>> groups;
-        if (list.size() > groupSize) {
-            final int groupCount = list.size() / groupSize + 1;
-            groups = new ArrayList<>(getCapacity(groupCount));
-            for (int i = 0, fromIndex, toIndex; i < groupCount; i++) {
-                fromIndex = i * groupSize;
-                toIndex = Math.min(list.size(), (i + 1) * groupSize);
-                groups.add(list.subList(fromIndex, toIndex));
-            }
-        } else {
-            groups = List.of(list);
-        }
-        return groups;
+        int size = list.size();
+        int partitionCount = (size + groupSize - 1) / groupSize;
+        return IntStream.range(0, partitionCount)
+                .mapToObj(i -> list.subList(i * groupSize, Math.min((i + 1) * groupSize, size)))
+                .collect(toList());
     }
 
+    // 计算集合容器的初始容量
     protected int getCapacity(int actual) {
         return (int) (actual / 0.75) + 1;
     }
