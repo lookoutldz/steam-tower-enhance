@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `player` (
     `avatar` VARCHAR(255),
     `avatarmedium` VARCHAR(255),
     `avatarfull` VARCHAR(255),
+    `avatarhash` VARCHAR(255),
     `personastate` INT UNSIGNED,
     `realname` VARCHAR(255),
     `primaryclanid` VARCHAR(255),
