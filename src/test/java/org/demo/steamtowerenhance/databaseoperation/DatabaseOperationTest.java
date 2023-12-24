@@ -5,6 +5,8 @@ import org.demo.steamtowerenhance.domain.App;
 import org.demo.steamtowerenhance.domain.Player;
 import org.demo.steamtowerenhance.dto.steamresponse.GetPlayerSummariesResponse;
 import org.demo.steamtowerenhance.job.AppFetcher;
+import org.demo.steamtowerenhance.job.FriendFetcher;
+import org.demo.steamtowerenhance.job.PlayerFetcher;
 import org.demo.steamtowerenhance.mapper.AppMapper;
 import org.demo.steamtowerenhance.mapper.PlayerMapper;
 import org.demo.steamtowerenhance.thirdparty.SteamWebApi;
@@ -31,9 +33,13 @@ public class DatabaseOperationTest {
     @Autowired
     private AppMapper appMapper;
     @Autowired
+    private PlayerMapper playerMapper;
+    @Autowired
     private AppFetcher appFetcher;
     @Autowired
-    private PlayerMapper playerMapper;
+    private FriendFetcher friendFetcher;
+    @Autowired
+    private PlayerFetcher playerFetcher;
 
     @Test
     void getOneApp() {
@@ -42,14 +48,6 @@ public class DatabaseOperationTest {
         queryWrapper.eq("appid", testAppId);
         App app = appMapper.selectOne(queryWrapper);
         System.out.println(app);
-    }
-
-    @Test
-    void insertApps() {
-        long t1 = System.currentTimeMillis();
-        appFetcher.fetchApps();
-        long t2 = System.currentTimeMillis();
-        System.out.println("by " + (t2 - t1) + "ms");
     }
 
     @Test
@@ -71,27 +69,27 @@ public class DatabaseOperationTest {
     }
 
     @Test
-    void refreshPlayerSummaries() {
+    void fetchApps() {
         long t1 = System.currentTimeMillis();
-        // TODO
+        appFetcher.fetchApps();
         long t2 = System.currentTimeMillis();
         System.out.println("by " + (t2 - t1) + "ms");
     }
 
     @Test
-    void refreshFriendListForPlayer() throws InterruptedException {
+    void fetchPlayers() {
         long t1 = System.currentTimeMillis();
-        // TODO
+        playerFetcher.fetchPlayers();
         long t2 = System.currentTimeMillis();
         System.out.println("by " + (t2 - t1) + "ms");
-        Thread.sleep(60000);
     }
 
     @Test
-    void fetchPlayerSummariesForFriendList() {
+    void fetchFriends() {
         long t1 = System.currentTimeMillis();
-        // TODO
+        friendFetcher.fetchFriends();
         long t2 = System.currentTimeMillis();
         System.out.println("by " + (t2 - t1) + "ms");
     }
+
 }

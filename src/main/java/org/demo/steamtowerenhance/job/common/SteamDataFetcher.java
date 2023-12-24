@@ -1,6 +1,6 @@
-package org.demo.steamtowerenhance.job;
+package org.demo.steamtowerenhance.job.common;
 
-interface SteamDataFetcher {
+public interface SteamDataFetcher {
     void fetchApps();
 
     void fetchPlayers();

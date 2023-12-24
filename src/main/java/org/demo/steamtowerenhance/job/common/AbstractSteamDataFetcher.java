@@ -1,4 +1,4 @@
-package org.demo.steamtowerenhance.job;
+package org.demo.steamtowerenhance.job.common;
 
 import java.util.List;
 import java.util.stream.IntStream;

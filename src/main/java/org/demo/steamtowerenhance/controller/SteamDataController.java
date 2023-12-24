@@ -26,7 +26,7 @@ public class SteamDataController {
 
     @GetMapping("/friends/failed")
     public Object reFetchFriendsFailed() {
-        friendFetcher.reFetchFailedRecords();
+        friendFetcher.reFetch();
         return "finished";
     }
 
@@ -38,7 +38,7 @@ public class SteamDataController {
 
     @GetMapping("/players/failed")
     public Object reFetchPlayersByFriends() {
-        playerFetcher.reFetchFailedRecords();
+        playerFetcher.reFetch();
         return "finished";
     }
 

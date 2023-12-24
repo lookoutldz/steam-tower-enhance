@@ -3,6 +3,7 @@ package org.demo.steamtowerenhance.job;
 import org.demo.steamtowerenhance.domain.App;
 import org.demo.steamtowerenhance.dto.steamresponse.AppListEntity;
 import org.demo.steamtowerenhance.dto.steamresponse.GetAppListResponse;
+import org.demo.steamtowerenhance.job.common.AbstractSteamDataFetcher;
 import org.demo.steamtowerenhance.mapper.AppMapper;
 import org.demo.steamtowerenhance.thirdparty.SteamWebApi;
 import org.demo.steamtowerenhance.util.HttpUtils;
