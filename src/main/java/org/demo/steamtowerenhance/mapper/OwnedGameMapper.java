@@ -5,6 +5,7 @@ import org.demo.steamtowerenhance.domain.OwnedGame;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ import java.util.List;
 @Repository
 public interface OwnedGameMapper extends BaseMapper<OwnedGame> {
 
-    void insertBatch(@Param("steamid") String steamid, @Param("list") List<OwnedGame> ownedGames);
+    void insertBatch(Collection<OwnedGame> ownedGames);
 }
 
 

@@ -5,6 +5,10 @@ import org.demo.steamtowerenhance.domain.OwnedGame;
 import org.demo.steamtowerenhance.service.OwnedGameService;
 import org.demo.steamtowerenhance.mapper.OwnedGameMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
 * @author amos
@@ -15,6 +19,11 @@ import org.springframework.stereotype.Service;
 public class OwnedGameServiceImpl extends ServiceImpl<OwnedGameMapper, OwnedGame>
     implements OwnedGameService{
 
+    @Transactional
+    @Override
+    public void insertBatch(Collection<OwnedGame> ownedGames) {
+        baseMapper.insertBatch(ownedGames);
+    }
 }
 
 

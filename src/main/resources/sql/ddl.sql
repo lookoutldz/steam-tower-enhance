@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `owned_game` (
     `steamid` VARCHAR(255) NOT NULL,
     `appid` INT NOT NULL,
     `appname` VARCHAR(255),
-    `playtime_2week` INT UNSIGNED,
+    `playtime_2weeks` INT UNSIGNED,
     `playtime_forever` INT UNSIGNED,
     `img_icon_url` VARCHAR(255),
     `img_logo_url` VARCHAR(255),

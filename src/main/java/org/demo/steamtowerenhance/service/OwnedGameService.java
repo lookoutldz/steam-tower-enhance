@@ -1,7 +1,11 @@
 package org.demo.steamtowerenhance.service;
 
+import org.apache.ibatis.annotations.Param;
 import org.demo.steamtowerenhance.domain.OwnedGame;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
 * @author amos
@@ -9,5 +13,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @createDate 2023-12-08 17:10:18
 */
 public interface OwnedGameService extends IService<OwnedGame> {
-
+    void insertBatch(Collection<OwnedGame> ownedGames);
 }

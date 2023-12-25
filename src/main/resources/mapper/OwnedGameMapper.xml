@@ -9,7 +9,7 @@
             <result property="steamid" column="steamid" jdbcType="VARCHAR"/>
             <result property="appid" column="appid" jdbcType="INTEGER"/>
             <result property="appname" column="appname" jdbcType="VARCHAR"/>
-            <result property="playtime2week" column="playtime_2week" jdbcType="INTEGER"/>
+            <result property="playtime2weeks" column="playtime_2weeks" jdbcType="INTEGER"/>
             <result property="playtimeForever" column="playtime_forever" jdbcType="INTEGER"/>
             <result property="imgIconUrl" column="img_icon_url" jdbcType="VARCHAR"/>
             <result property="imgLogoUrl" column="img_logo_url" jdbcType="VARCHAR"/>
@@ -23,7 +23,7 @@
 
     <sql id="Base_Column_List">
         id,steamid,appid,
-        appname,playtime_2week,playtime_forever,
+        appname,playtime_2weeks,playtime_forever,
         img_icon_url,img_logo_url,has_community_visible_state, has_leaderboards,
         update_time,create_time,delete_time,
         deleted
@@ -31,11 +31,11 @@
 
     <insert id="insertBatch">
         insert ignore into owned_game(
-            steamid,appid,appname,playtime_2week,playtime_forever,
+            steamid,appid,appname,playtime_2weeks,playtime_forever,
             img_icon_url,img_logo_url,has_community_visible_state,has_leaderboards)
         values
         <foreach collection="list" separator="," item="item">
-            (#{steamid}, #{item.appid}, #{item.appname}, #{item.playtime2week}, #{item.playtimeForever},
+            (#{item.steamid}, #{item.appid}, #{item.appname}, #{item.playtime2weeks}, #{item.playtimeForever},
             #{item.imgIconUrl}, #{item.imgLogoUrl}, #{item.hasCommunityVisibleState}, #{item.hasLeaderboards})
         </foreach>
     </insert>

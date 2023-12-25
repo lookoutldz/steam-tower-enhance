@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -23,8 +22,8 @@ public class OwnedGame implements DatabaseEntity {
     @JsonProperty("name")
     private String appname;
 
-    @JsonProperty("playtime_2week")
-    private Integer playtime2week;
+    @JsonProperty("playtime_2weeks")
+    private Integer playtime2weeks;
 
     @JsonProperty("playtime_forever")
     private Integer playtimeForever;
@@ -39,7 +38,7 @@ public class OwnedGame implements DatabaseEntity {
     private Integer hasCommunityVisibleState;
 
     @JsonProperty("has_leaderboards")
-    private Integer hasLeaderboards;
+    private Boolean hasLeaderboards;
 
     private Date updateTime;
 
@@ -83,12 +82,12 @@ public class OwnedGame implements DatabaseEntity {
         this.appname = appname;
     }
 
-    public Integer getPlaytime2week() {
-        return playtime2week;
+    public Integer getPlaytime2weeks() {
+        return playtime2weeks;
     }
 
-    public void setPlaytime2week(Integer playtime2week) {
-        this.playtime2week = playtime2week;
+    public void setPlaytime2weeks(Integer playtime2weeks) {
+        this.playtime2weeks = playtime2weeks;
     }
 
     public Integer getPlaytimeForever() {
@@ -123,11 +122,11 @@ public class OwnedGame implements DatabaseEntity {
         this.hasCommunityVisibleState = hasCommunityVisibleState;
     }
 
-    public Integer getHasLeaderboards() {
+    public Boolean getHasLeaderboards() {
         return hasLeaderboards;
     }
 
-    public void setHasLeaderboards(Integer hasLeaderboards) {
+    public void setHasLeaderboards(Boolean hasLeaderboards) {
         this.hasLeaderboards = hasLeaderboards;
     }
 
@@ -179,7 +178,7 @@ public class OwnedGame implements DatabaseEntity {
             && (this.getSteamid() == null ? other.getSteamid() == null : this.getSteamid().equals(other.getSteamid()))
             && (this.getAppid() == null ? other.getAppid() == null : this.getAppid().equals(other.getAppid()))
             && (this.getAppname() == null ? other.getAppname() == null : this.getAppname().equals(other.getAppname()))
-            && (this.getPlaytime2week() == null ? other.getPlaytime2week() == null : this.getPlaytime2week().equals(other.getPlaytime2week()))
+            && (this.getPlaytime2weeks() == null ? other.getPlaytime2weeks() == null : this.getPlaytime2weeks().equals(other.getPlaytime2weeks()))
             && (this.getPlaytimeForever() == null ? other.getPlaytimeForever() == null : this.getPlaytimeForever().equals(other.getPlaytimeForever()))
             && (this.getImgIconUrl() == null ? other.getImgIconUrl() == null : this.getImgIconUrl().equals(other.getImgIconUrl()))
             && (this.getImgLogoUrl() == null ? other.getImgLogoUrl() == null : this.getImgLogoUrl().equals(other.getImgLogoUrl()))
@@ -199,7 +198,7 @@ public class OwnedGame implements DatabaseEntity {
         result = prime * result + ((getSteamid() == null) ? 0 : getSteamid().hashCode());
         result = prime * result + ((getAppid() == null) ? 0 : getAppid().hashCode());
         result = prime * result + ((getAppname() == null) ? 0 : getAppname().hashCode());
-        result = prime * result + ((getPlaytime2week() == null) ? 0 : getPlaytime2week().hashCode());
+        result = prime * result + ((getPlaytime2weeks() == null) ? 0 : getPlaytime2weeks().hashCode());
         result = prime * result + ((getPlaytimeForever() == null) ? 0 : getPlaytimeForever().hashCode());
         result = prime * result + ((getImgIconUrl() == null) ? 0 : getImgIconUrl().hashCode());
         result = prime * result + ((getImgLogoUrl() == null) ? 0 : getImgLogoUrl().hashCode());
@@ -222,7 +221,7 @@ public class OwnedGame implements DatabaseEntity {
         sb.append(", steamid=").append(steamid);
         sb.append(", appid=").append(appid);
         sb.append(", appname=").append(appname);
-        sb.append(", playtime2week=").append(playtime2week);
+        sb.append(", playtime2week=").append(playtime2weeks);
         sb.append(", playtimeForever=").append(playtimeForever);
         sb.append(", imgIconUrl=").append(imgIconUrl);
         sb.append(", imgLogoUrl=").append(imgLogoUrl);
