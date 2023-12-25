@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.demo.steamtowerenhance.domain.App;
 import org.demo.steamtowerenhance.domain.Player;
 import org.demo.steamtowerenhance.dto.steamresponse.GetPlayerSummariesResponse;
-import org.demo.steamtowerenhance.job.AppFetcher;
-import org.demo.steamtowerenhance.job.FriendFetcher;
-import org.demo.steamtowerenhance.job.OwnedGameFetcher;
-import org.demo.steamtowerenhance.job.PlayerFetcher;
+import org.demo.steamtowerenhance.job.*;
 import org.demo.steamtowerenhance.mapper.AppMapper;
 import org.demo.steamtowerenhance.mapper.PlayerMapper;
 import org.demo.steamtowerenhance.thirdparty.SteamWebApi;
@@ -43,6 +40,8 @@ public class DatabaseOperationTest {
     private PlayerFetcher playerFetcher;
     @Autowired
     private OwnedGameFetcher ownedGameFetcher;
+    @Autowired
+    private GameSchemaFetcher gameSchemaFetcher;
 
     @Test
     void getOneApp() {
@@ -99,6 +98,14 @@ public class DatabaseOperationTest {
     void fetchOwnedGames() {
         long t1 = System.currentTimeMillis();
         ownedGameFetcher.fetchOwnedGames();
+        long t2 = System.currentTimeMillis();
+        System.out.println("by " + (t2 - t1) + "ms");
+    }
+
+    @Test
+    void fetchGameSchemas() {
+        long t1 = System.currentTimeMillis();
+        gameSchemaFetcher.fetchGameSchemas();
         long t2 = System.currentTimeMillis();
         System.out.println("by " + (t2 - t1) + "ms");
     }
