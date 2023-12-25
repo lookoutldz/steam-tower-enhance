@@ -51,7 +51,7 @@ T --serve--> F
 - [x] app basic
 - [x] player basic
 - [x] friends basic
-- [ ] owned_games basic
+- [x] owned_games basic
 - [ ] game_schema basic
 - [ ] player_achievements basic
 - [ ] global_achievements basic
