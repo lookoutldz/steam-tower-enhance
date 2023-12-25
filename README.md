@@ -16,7 +16,7 @@ steam 个人数据观测塔 进阶版
 ```mermaid
 graph TB
 S{{SteamWebApi}}
-subgraph Projcet 
+subgraph Project 
     T[SteamTowerEnhance]
     D[(MySQL)]
     F["Frontend(TBC)"]
