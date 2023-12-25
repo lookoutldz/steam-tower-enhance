@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -17,10 +19,12 @@ public class GameSchema implements DatabaseEntity {
 
     private Integer appid;
 
+    @JsonProperty("name")
     private String achname;
 
     private Integer defaultvalue;
 
+    @JsonProperty("displayName")
     private String displayname;
 
     private Integer hidden;

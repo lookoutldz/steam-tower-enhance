@@ -1,6 +1,6 @@
 package org.demo.steamtowerenhance.service;
 
-import org.demo.steamtowerenhance.domain.PlayerAchi;
+import org.demo.steamtowerenhance.domain.PlayerAchievements;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -8,6 +8,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @description 针对表【player_achi】的数据库操作Service
 * @createDate 2023-12-08 17:10:18
 */
-public interface PlayerAchiService extends IService<PlayerAchi> {
+public interface PlayerAchievementService extends IService<PlayerAchievements> {
 
 }

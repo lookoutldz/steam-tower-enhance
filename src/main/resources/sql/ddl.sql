@@ -89,11 +89,13 @@ CREATE TABLE IF NOT EXISTS `owned_game` (
 
 CREATE UNIQUE INDEX `uk_steamid_appid_on_owned_game` ON owned_game (`steamid`, `appid`);
 
-CREATE TABLE player_achi (
+CREATE TABLE player_achievement (
     `id` INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     `steamid` VARCHAR(255) NOT NULL,
     `appid` INT NOT NULL,
-    `achname` VARCHAR(255) NOT NULL,
+    `appname` VARCHAR(255) NOT NULL,
+    `apiname` VARCHAR(255) NOT NULL,
+    `achievement_name` VARCHAR(255) NOT NULL,
     `description` TEXT,
     `achieved` INT UNSIGNED,
     `unlocktime` INT UNSIGNED,
@@ -103,7 +105,7 @@ CREATE TABLE player_achi (
     `deleted` BOOLEAN DEFAULT FALSE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE UNIQUE INDEX `uk_steamid_appid_achname_on_player_achi` ON player_achi (`steamid`, `appid`, `achname`);
+CREATE UNIQUE INDEX `uk_steamid_appid_achievement_name_on_player_achievement` ON player_achievement (`steamid`, `appid`, `achievement_name`);
 
 CREATE TABLE friend (
     `id` INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,

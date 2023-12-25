@@ -1,6 +1,6 @@
 package org.demo.steamtowerenhance.mapper;
 
-import org.demo.steamtowerenhance.domain.PlayerAchi;
+import org.demo.steamtowerenhance.domain.PlayerAchievements;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 * @Entity org.demo.steamtowerenhance.domain.PlayerAchi
 */
 @Repository
-public interface PlayerAchiMapper extends BaseMapper<PlayerAchi> {
+public interface PlayerAchievementMapper extends BaseMapper<PlayerAchievements> {
 
 }
 
