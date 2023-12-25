@@ -47,8 +47,12 @@ public class FriendFetcher extends AbstractBaseOnExistingSteamDataFetcher<Friend
 
     @Override
     public List<Friend> dataPostProcessor(String url, List<Friend> rawData) {
-        //TODO
-        return null;
+        String steamid = HttpUtils.getUrlParameter(url, "steamid");
+        if (steamid == null) {
+            return rawData;
+        }
+        rawData.parallelStream().forEach(friend -> friend.setSteamid(steamid));
+        return rawData;
     }
 
     @Override

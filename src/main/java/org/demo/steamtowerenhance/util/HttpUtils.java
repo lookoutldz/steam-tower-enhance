@@ -15,9 +15,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Component
 public class HttpUtils {
@@ -117,5 +121,29 @@ public class HttpUtils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static final String httpRegex = "^(http|https)://.*$";
+    private static final Pattern pattern = Pattern.compile(httpRegex);
+    public static Map<String, String> getUrlParameters(String url) {
+        if (pattern.matcher(url).matches() && url.contains("?") && url.contains("=")) {
+            String[] splits = url.split("\\?");
+            if (splits.length > 2) {
+                throw new RuntimeException("Unhandled url when abstract parameter, url: " + url);
+            }
+            final String params = splits[1];
+            if (params.contains("&")) {
+                return Arrays.stream(params.split("&"))
+                        .map(s -> s.split("="))
+                        .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
+            }
+            String[] singlePair = params.split("=");
+            return Map.of(singlePair[0], singlePair[1]);
+        }
+        return Map.of();
+    }
+
+    public static String getUrlParameter(String url, String key) {
+        return getUrlParameters(url).get(key);
     }
 }
