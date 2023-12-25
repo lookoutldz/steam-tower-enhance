@@ -14,4 +14,6 @@ import java.util.List;
 */
 public interface OwnedGameService extends IService<OwnedGame> {
     void insertBatch(Collection<OwnedGame> ownedGames);
+
+    List<OwnedGame> findSteamIdAndAppId(Integer offset, Integer pageSize);
 }

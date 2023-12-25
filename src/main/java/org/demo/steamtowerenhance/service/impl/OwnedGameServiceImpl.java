@@ -24,6 +24,11 @@ public class OwnedGameServiceImpl extends ServiceImpl<OwnedGameMapper, OwnedGame
     public void insertBatch(Collection<OwnedGame> ownedGames) {
         baseMapper.insertBatch(ownedGames);
     }
+
+    @Override
+    public List<OwnedGame> findSteamIdAndAppId(Integer offset, Integer pageSize) {
+        return baseMapper.findSteamIdAndAppId(offset, pageSize);
+    }
 }
 
 

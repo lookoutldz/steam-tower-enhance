@@ -42,6 +42,8 @@ public class DatabaseOperationTest {
     private OwnedGameFetcher ownedGameFetcher;
     @Autowired
     private GameSchemaFetcher gameSchemaFetcher;
+    @Autowired
+    private PlayerAchievementFetcher playerAchievementFetcher;
 
     @Test
     void getOneApp() {
@@ -106,6 +108,15 @@ public class DatabaseOperationTest {
     void fetchGameSchemas() {
         long t1 = System.currentTimeMillis();
         gameSchemaFetcher.fetchGameSchemas();
+        long t2 = System.currentTimeMillis();
+        System.out.println("by " + (t2 - t1) + "ms");
+    }
+
+
+    @Test
+    void fetchPlayerAchievements() {
+        long t1 = System.currentTimeMillis();
+        playerAchievementFetcher.fetchPlayerAchievements();
         long t2 = System.currentTimeMillis();
         System.out.println("by " + (t2 - t1) + "ms");
     }

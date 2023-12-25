@@ -4,6 +4,8 @@ import org.demo.steamtowerenhance.domain.PlayerAchievements;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+
 /**
 * @author amos
 * @description 针对表【player_achi】的数据库操作Mapper
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PlayerAchievementMapper extends BaseMapper<PlayerAchievements> {
 
+    void insertBatch(Collection<PlayerAchievements> playerAchievements);
 }
 
 

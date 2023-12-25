@@ -39,4 +39,8 @@
             #{item.imgIconUrl}, #{item.imgLogoUrl}, #{item.hasCommunityVisibleState}, #{item.hasLeaderboards})
         </foreach>
     </insert>
+
+    <select id="findSteamIdAndAppId" resultType="org.demo.steamtowerenhance.domain.OwnedGame">
+        select steamid, appid from owned_game where deleted = false limit #{offset}, #{pageSize};
+    </select>
 </mapper>

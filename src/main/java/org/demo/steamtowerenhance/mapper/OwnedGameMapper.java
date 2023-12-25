@@ -18,6 +18,8 @@ import java.util.List;
 public interface OwnedGameMapper extends BaseMapper<OwnedGame> {
 
     void insertBatch(Collection<OwnedGame> ownedGames);
+
+    List<OwnedGame> findSteamIdAndAppId(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize);
 }
 
 

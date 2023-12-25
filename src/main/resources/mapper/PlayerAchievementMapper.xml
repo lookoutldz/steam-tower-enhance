@@ -26,4 +26,11 @@
         unlocktime,update_time,create_time,
         delete_time,deleted
     </sql>
+    <insert id="insertBatch">
+        insert ignore into player_achievement(steamid, appid, appname, apiname, achievement_name, description, achieved, unlocktime)
+        values
+        <foreach collection="list" separator="," item="item">
+            (#{item.steamid}, #{item.appid}, #{item.appname}, #{item.apiname}, #{item.achievementName}, #{item.description}, #{item.achieved}, #{item.unlocktime})
+        </foreach>
+    </insert>
 </mapper>

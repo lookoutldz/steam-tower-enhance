@@ -5,6 +5,9 @@ import org.demo.steamtowerenhance.domain.PlayerAchievements;
 import org.demo.steamtowerenhance.mapper.PlayerAchievementMapper;
 import org.demo.steamtowerenhance.service.PlayerAchievementService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
 
 /**
 * @author amos
@@ -15,6 +18,11 @@ import org.springframework.stereotype.Service;
 public class PlayerAchievementServiceImpl extends ServiceImpl<PlayerAchievementMapper, PlayerAchievements>
     implements PlayerAchievementService {
 
+    @Transactional
+    @Override
+    public void insertBatch(Collection<PlayerAchievements> playerAchievements) {
+        baseMapper.insertBatch(playerAchievements);
+    }
 }
 
 
