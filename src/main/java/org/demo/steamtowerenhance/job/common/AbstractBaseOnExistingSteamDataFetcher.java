@@ -166,6 +166,14 @@ public abstract class AbstractBaseOnExistingSteamDataFetcher<D extends DatabaseE
             if (r.response().game_count() != null && r.response().games() != null) {
                 return (List<D>) r.response().games();
             }
+        } else if (response instanceof GetSchemaForGameResponse r) {
+            if (r.game() != null && r.game().availableGameStats() != null && r.game().availableGameStats().achievements() != null) {
+                return (List<D>) r.game().availableGameStats().achievements();
+            }
+        } else if (response instanceof GetPlayerAchievementsResponse r) {
+            if (r.playerstats() != null && r.playerstats().achievements() != null) {
+                return (List<D>) r.playerstats().achievements();
+            }
         } else {
             return List.of();
         }

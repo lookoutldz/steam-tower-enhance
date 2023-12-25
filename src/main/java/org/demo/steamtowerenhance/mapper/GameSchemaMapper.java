@@ -1,8 +1,10 @@
 package org.demo.steamtowerenhance.mapper;
 
-import org.demo.steamtowerenhance.domain.GameSchema;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.demo.steamtowerenhance.domain.GameSchema;
 import org.springframework.stereotype.Repository;
+
+import java.util.Collection;
 
 /**
 * @author amos
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface GameSchemaMapper extends BaseMapper<GameSchema> {
 
+    void insertBatch(Collection<GameSchema> gameSchemas);
 }
 
 

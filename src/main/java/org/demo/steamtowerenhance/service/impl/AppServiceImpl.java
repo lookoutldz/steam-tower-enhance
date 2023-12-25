@@ -6,6 +6,8 @@ import org.demo.steamtowerenhance.service.AppService;
 import org.demo.steamtowerenhance.mapper.AppMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
 * @author amos
 * @description 针对表【app】的数据库操作Service实现
@@ -15,6 +17,10 @@ import org.springframework.stereotype.Service;
 public class AppServiceImpl extends ServiceImpl<AppMapper, App>
     implements AppService{
 
+    @Override
+    public List<Integer> findAppIds(Integer offset, Integer pageSize) {
+        return baseMapper.findAppIds(offset, pageSize);
+    }
 }
 
 

@@ -7,9 +7,9 @@
     <resultMap id="BaseResultMap" type="org.demo.steamtowerenhance.domain.GameSchema">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="appid" column="appid" jdbcType="INTEGER"/>
-            <result property="achname" column="achname" jdbcType="VARCHAR"/>
+            <result property="apiname" column="apiname" jdbcType="VARCHAR"/>
             <result property="defaultvalue" column="defaultvalue" jdbcType="INTEGER"/>
-            <result property="displayname" column="displayName" jdbcType="VARCHAR"/>
+            <result property="displayName" column="display_name" jdbcType="VARCHAR"/>
             <result property="hidden" column="hidden" jdbcType="INTEGER"/>
             <result property="description" column="description" jdbcType="VARCHAR"/>
             <result property="icon" column="icon" jdbcType="VARCHAR"/>
@@ -21,10 +21,17 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,appid,achname,
-        defaultvalue,displayName,hidden,
+        id,appid,apiname,
+        defaultvalue,display_name,hidden,
         description,icon,icongray,
         update_time,create_time,delete_time,
         deleted
     </sql>
+    <insert id="insertBatch">
+        insert ignore into game_schema(appid, apiname, defaultvalue, display_name, hidden, description, icon, icongray)
+        values
+        <foreach collection="list" separator="," item="item">
+            (#{item.appid}, #{item.apiname}, #{item.defaultvalue}, #{item.displayName}, #{item.hidden}, #{item.description}, #{item.icon}, #{item.icongray})
+        </foreach>
+    </insert>
 </mapper>

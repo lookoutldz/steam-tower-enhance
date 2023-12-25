@@ -1,12 +1,10 @@
 package org.demo.steamtowerenhance.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -20,12 +18,11 @@ public class GameSchema implements DatabaseEntity {
     private Integer appid;
 
     @JsonProperty("name")
-    private String achname;
+    private String apiname;
 
     private Integer defaultvalue;
 
-    @JsonProperty("displayName")
-    private String displayname;
+    private String displayName;
 
     private Integer hidden;
 
@@ -61,12 +58,12 @@ public class GameSchema implements DatabaseEntity {
         this.appid = appid;
     }
 
-    public String getAchname() {
-        return achname;
+    public String getApiname() {
+        return apiname;
     }
 
-    public void setAchname(String achname) {
-        this.achname = achname;
+    public void setApiname(String apiname) {
+        this.apiname = apiname;
     }
 
     public Integer getDefaultvalue() {
@@ -77,12 +74,12 @@ public class GameSchema implements DatabaseEntity {
         this.defaultvalue = defaultvalue;
     }
 
-    public String getDisplayname() {
-        return displayname;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setDisplayname(String displayname) {
-        this.displayname = displayname;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public Integer getHidden() {
@@ -163,9 +160,9 @@ public class GameSchema implements DatabaseEntity {
         GameSchema other = (GameSchema) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
             && (this.getAppid() == null ? other.getAppid() == null : this.getAppid().equals(other.getAppid()))
-            && (this.getAchname() == null ? other.getAchname() == null : this.getAchname().equals(other.getAchname()))
+            && (this.getApiname() == null ? other.getApiname() == null : this.getApiname().equals(other.getApiname()))
             && (this.getDefaultvalue() == null ? other.getDefaultvalue() == null : this.getDefaultvalue().equals(other.getDefaultvalue()))
-            && (this.getDisplayname() == null ? other.getDisplayname() == null : this.getDisplayname().equals(other.getDisplayname()))
+            && (this.getDisplayName() == null ? other.getDisplayName() == null : this.getDisplayName().equals(other.getDisplayName()))
             && (this.getHidden() == null ? other.getHidden() == null : this.getHidden().equals(other.getHidden()))
             && (this.getDescription() == null ? other.getDescription() == null : this.getDescription().equals(other.getDescription()))
             && (this.getIcon() == null ? other.getIcon() == null : this.getIcon().equals(other.getIcon()))
@@ -182,9 +179,9 @@ public class GameSchema implements DatabaseEntity {
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getAppid() == null) ? 0 : getAppid().hashCode());
-        result = prime * result + ((getAchname() == null) ? 0 : getAchname().hashCode());
+        result = prime * result + ((getApiname() == null) ? 0 : getApiname().hashCode());
         result = prime * result + ((getDefaultvalue() == null) ? 0 : getDefaultvalue().hashCode());
-        result = prime * result + ((getDisplayname() == null) ? 0 : getDisplayname().hashCode());
+        result = prime * result + ((getDisplayName() == null) ? 0 : getDisplayName().hashCode());
         result = prime * result + ((getHidden() == null) ? 0 : getHidden().hashCode());
         result = prime * result + ((getDescription() == null) ? 0 : getDescription().hashCode());
         result = prime * result + ((getIcon() == null) ? 0 : getIcon().hashCode());
@@ -204,9 +201,9 @@ public class GameSchema implements DatabaseEntity {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", appid=").append(appid);
-        sb.append(", achname=").append(achname);
+        sb.append(", achname=").append(apiname);
         sb.append(", defaultvalue=").append(defaultvalue);
-        sb.append(", displayname=").append(displayname);
+        sb.append(", displayname=").append(displayName);
         sb.append(", hidden=").append(hidden);
         sb.append(", description=").append(description);
         sb.append(", icon=").append(icon);

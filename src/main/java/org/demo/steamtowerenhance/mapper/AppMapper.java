@@ -1,10 +1,12 @@
 package org.demo.steamtowerenhance.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.demo.steamtowerenhance.domain.App;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
 * @author amos
@@ -18,6 +20,8 @@ public interface AppMapper extends BaseMapper<App> {
     void insertBatch(Collection<App> appList);
 
     void updateByPrimaryKeySelective(App app);
+
+    List<Integer> findAppIds(@Param("offset") Integer offset, @Param("pageSize") Integer pageSize);
 }
 
 

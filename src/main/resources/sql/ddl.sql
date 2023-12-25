@@ -55,9 +55,9 @@ CREATE UNIQUE INDEX `uk_appid_on_app` ON app(`appid`);
 CREATE TABLE game_schema (
     `id` INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     `appid` INT NOT NULL,
-    `achname` VARCHAR(255) NOT NULL,
+    `apiname` VARCHAR(255) NOT NULL,
     `defaultvalue` INT UNSIGNED,
-    `displayName` TEXT,
+    `display_name` TEXT,
     `hidden` INT UNSIGNED,
     `description` TEXT,
     `icon` VARCHAR(255),
@@ -68,7 +68,7 @@ CREATE TABLE game_schema (
     `deleted` BOOLEAN DEFAULT FALSE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE UNIQUE INDEX `uk_appid_achname_on_game_schema` ON game_schema (`appid`, `achname`);
+CREATE UNIQUE INDEX `uk_appid_achname_on_game_schema` ON game_schema (`appid`, `apiname`);
 
 CREATE TABLE IF NOT EXISTS `owned_game` (
     `id` INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,

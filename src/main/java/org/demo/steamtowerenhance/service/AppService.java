@@ -3,6 +3,8 @@ package org.demo.steamtowerenhance.service;
 import org.demo.steamtowerenhance.domain.App;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
 * @author amos
 * @description 针对表【app】的数据库操作Service
@@ -10,4 +12,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface AppService extends IService<App> {
 
+    List<Integer> findAppIds(Integer offset, Integer pageSize);
 }

@@ -1,3 +1,3 @@
 package org.demo.steamtowerenhance.dto.steamresponse;
 
-public record GetPlayerAchievementsResponse() implements SteamResponse {}
+public record GetPlayerAchievementsResponse(GetPlayerAchievementInnerPlayerStats playerstats) implements SteamResponse {}

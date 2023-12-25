@@ -5,6 +5,9 @@ import org.demo.steamtowerenhance.domain.GameSchema;
 import org.demo.steamtowerenhance.service.GameSchemaService;
 import org.demo.steamtowerenhance.mapper.GameSchemaMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
 
 /**
 * @author amos
@@ -15,6 +18,11 @@ import org.springframework.stereotype.Service;
 public class GameSchemaServiceImpl extends ServiceImpl<GameSchemaMapper, GameSchema>
     implements GameSchemaService{
 
+    @Transactional
+    @Override
+    public void insertBatch(Collection<GameSchema> gameSchemas) {
+        baseMapper.insertBatch(gameSchemas);
+    }
 }
 
 
