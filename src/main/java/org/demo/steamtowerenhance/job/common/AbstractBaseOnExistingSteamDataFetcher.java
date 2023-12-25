@@ -4,10 +4,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.demo.steamtowerenhance.config.CommonThreadPool;
 import org.demo.steamtowerenhance.domain.DatabaseEntity;
-import org.demo.steamtowerenhance.dto.steamresponse.GetAppListResponse;
-import org.demo.steamtowerenhance.dto.steamresponse.GetFriendListResponse;
-import org.demo.steamtowerenhance.dto.steamresponse.GetPlayerSummariesResponse;
-import org.demo.steamtowerenhance.dto.steamresponse.SteamResponse;
+import org.demo.steamtowerenhance.dto.steamresponse.*;
 import org.demo.steamtowerenhance.thirdparty.SteamWebApi;
 import org.demo.steamtowerenhance.util.HttpUtils;
 
@@ -164,6 +161,10 @@ public abstract class AbstractBaseOnExistingSteamDataFetcher<D extends DatabaseE
         } else if (response instanceof GetFriendListResponse r) {
             if (r.friendslist() != null && r.friendslist().friends() != null) {
                 return (List<D>) r.friendslist().friends();
+            }
+        } else if (response instanceof GetOwnedGamesResponse r) {
+            if (r.response().game_count() != null && r.response().games() != null) {
+                return (List<D>) r.response().games();
             }
         } else {
             return List.of();

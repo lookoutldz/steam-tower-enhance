@@ -6,6 +6,7 @@ import org.demo.steamtowerenhance.domain.Player;
 import org.demo.steamtowerenhance.dto.steamresponse.GetPlayerSummariesResponse;
 import org.demo.steamtowerenhance.job.AppFetcher;
 import org.demo.steamtowerenhance.job.FriendFetcher;
+import org.demo.steamtowerenhance.job.OwnedGameFetcher;
 import org.demo.steamtowerenhance.job.PlayerFetcher;
 import org.demo.steamtowerenhance.mapper.AppMapper;
 import org.demo.steamtowerenhance.mapper.PlayerMapper;
@@ -40,6 +41,8 @@ public class DatabaseOperationTest {
     private FriendFetcher friendFetcher;
     @Autowired
     private PlayerFetcher playerFetcher;
+    @Autowired
+    private OwnedGameFetcher ownedGameFetcher;
 
     @Test
     void getOneApp() {
@@ -88,6 +91,14 @@ public class DatabaseOperationTest {
     void fetchFriends() {
         long t1 = System.currentTimeMillis();
         friendFetcher.fetchFriends();
+        long t2 = System.currentTimeMillis();
+        System.out.println("by " + (t2 - t1) + "ms");
+    }
+
+    @Test
+    void fetchOwnedGames() {
+        long t1 = System.currentTimeMillis();
+        ownedGameFetcher.fetchOwnedGames();
         long t2 = System.currentTimeMillis();
         System.out.println("by " + (t2 - t1) + "ms");
     }
